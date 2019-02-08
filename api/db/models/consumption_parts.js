@@ -19,6 +19,9 @@ const consumptionPartShema = new mongoose.Schema({
     date: {
         type: String,
     },
+    user: {
+        type: String,
+    },
 });
 
 module.exports = mongoose.model('ConsumptionPart', consumptionPartShema);

@@ -4,6 +4,8 @@ const config = require('./config');
 // Use native promises
 mongoose.Promise = global.Promise; // es6 promises
 
+mongoose.set('debug', true); // debug linking all request to this schema in console ---
+
 const connectionURL = `mongodb://${config.db.user}@${config.db.host}:${config.db.port}/${config.db.name}`;
 mongoose.connect(connectionURL, {useNewUrlParser: true}).catch((e) => console.error(e));
 const db = mongoose.connection;

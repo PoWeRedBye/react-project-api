@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const cartridgeSchema = new mongoose.Schema({
-    name: {
+    cartridge_name: {
         type: String,
         required: [true, 'name is required']
     },
@@ -26,15 +26,15 @@ const cartridgeSchema = new mongoose.Schema({
     client: {
         type: String,
     },
-    parts: [
+    used_parts: [
         {
-            code: {
+            part_code: {
                 type: String,
             },
-            name: {
+            part_name: {
                 type: String,
             },
-            count: {
+            part_quantity: {
                 type: Number,
             }
         }

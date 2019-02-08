@@ -10,16 +10,14 @@ const passport = require('koa-passport'); //реализация passport для
 const LocalStrategy = require('passport-local'); //локальная стратегия авторизации
 const JwtStrategy = require('passport-jwt').Strategy; // авторизация через JWT
 const ExtractJwt = require('passport-jwt').ExtractJwt; // авторизация через JWT
-// JWT
-const jwtsecret = "mysecretkey"; // ключ для подписи JWT
-const jwt = require('jsonwebtoken'); // аутентификация по JWT для hhtp
-const socketioJwt = require('socketio-jwt'); // аутентификация по JWT для socket.io
-// SOCKET.IO
-const socketIO = require('socket.io');
-// Crypto for node.js
-const crypto = require('crypto'); // модуль node.js для выполнения различных шифровальных операций, в т.ч. для создания хэшей.
 
 const User = require('./api/db/models/user');
+
+global.logger = (...args) => {
+  console.log('-='.repeat(20));
+  args.map( _ => console.log( _ ));
+  console.log('-='.repeat(20));
+};
 
 passport.use(new LocalStrategy({
     usernameField: 'email',
@@ -43,36 +41,47 @@ passport.use(new LocalStrategy({
 
 const jwtOptions = {
   //jwtFromRequest: ExtractJwt.fromAuthHeader(),
-  jwtFromRequest: ExtractJwt.fromBodyField('token'),
+  jwtFromRequest: ExtractJwt.fromHeader('token'),
   secretOrKey: 'react-api-jwt-secret',
 };
 
+//TODO: надо бы протестить!!!
 passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
-    User.findById(jwt_payload.id, (err, user) => {
-      if (err) {
-        return done(err)
-      }
-      if (user) {
-        done(null, user)
-      } else {
-        done(null, false)
-      }
-    })
+  const getCurrentTimestamp = () => Math.round((new Date()).getTime() / 1000); // стало
+  console.log(getCurrentTimestamp() + ' === app: 57');
+  if (jwt_payload.exp >= getCurrentTimestamp()) { // стало
+      User.findById(jwt_payload.id, (err, user) => {
+        if (err) {
+          return done(err)
+        }
+        if (user) {
+          done(null, user)
+        } else {
+          done(null, false)
+        }
+      })
+    } else { // стало
+      console.log('error in else in app: 65');
+      return false; // стало
+    } // стало
   })
 );
-
 // * ->
 app.use(serve('public'));
 app.use(logger());
 //app.use(bodyParser());
 // * <-
 require('./api/db/mongodb');              // - было
-app.use(koaBody());                       // - было
+//app.use(koaBody());                       // - было
+app.use(koaBody({ multipart: true }));
+
 // ** ->
 app.use(passport.initialize());
 // ** <-
 app.use(router.routes());                 // - было
 app.use(router.allowedMethods());         // - было
+
+
 
 const server = app.listen(3000, () => {
   console.log('http://localhost:3000');

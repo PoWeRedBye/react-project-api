@@ -1,6 +1,6 @@
 const Parts = require('../db/models/parts_model');
 
-exports.addParts = ({code, name, amount}) => new Promise(async (resolve , reject) => {
+exports.addParts = ({code, name, amount, token}) => new Promise(async (resolve , reject) => {
     try {
         if (!code){
             resolve({
@@ -56,7 +56,7 @@ exports.getPartsByCode = ({code}) => new Promise(async (resolve , reject) =>  {
             return;
         }
 
-        const part = await Parts.find({code}); // not works!!!
+        const part = await Parts.find({code});
         resolve({
             result: true,
             code: code,
@@ -67,3 +67,4 @@ exports.getPartsByCode = ({code}) => new Promise(async (resolve , reject) =>  {
         reject(err);
     }
 });
+
