@@ -1,70 +1,80 @@
 const Parts = require('../db/models/parts_model');
 
-exports.addParts = ({code, name, amount, token}) => new Promise(async (resolve , reject) => {
+exports.registerNewParts = ({ code, name }) =>
+  new Promise(async (resolve, reject) => {
     try {
-        if (!code){
-            resolve({
-                success: false,
-                message: 'code is required!!!'
-            });
-            return;
-        } else if (!name){
-            resolve({
-                success: false,
-                message: 'name is required!!!'
-            });
-            return;
-        }
-
-        const newParts = new Parts({
-           code,
-           name,
-           amount,
+      if (!code) {
+        resolve({
+          success: false,
+          message: 'code is required!!!',
         });
-
+        return;
+      } else if (!name) {
+        resolve({
+          success: false,
+          message: 'name is required!!!',
+        });
+        return;
+      }
+      const partCheck = await Parts.find({ code });
+      if (!partCheck) {
+        const parts = new Parts({
+          code,
+          name,
+        });
         const part = await newParts.save();
         resolve({
-            result: true,
-            data: part
+          result: 200,
+          message: 'you register new parts',
         });
-    }
-    catch (err) {
-        reject(err);
-    }
-});
-
-exports.getParts = () => new Promise(async (resolve , reject) =>  {
-    try {
-        const part = await Parts.find();
+      } else {
         resolve({
-            result: true,
-            data: part
+          result: 200,
+          message: 'this parts already have in database',
         });
+      }
+    } catch (err) {
+      reject(err);
     }
-    catch (err) {
-        reject(err);
-    }
-});
+  });
 
-exports.getPartsByCode = ({code}) => new Promise(async (resolve , reject) =>  {
+exports.getAllParts = payload =>
+  new Promise(async (resolve, reject) => {
     try {
-        if (!code) {
-            resolve({
-                success: false,
-                message: 'code is required!!!'
-            });
-            return;
+      if (payload.list_limit || payload.list_skip) {
+        let query = Parts.find({});
+        if (Number(+payload.list_skip) > 1) {
+          query = query.skip(+payload.list_limit * (+payload.list_skip - 1));
         }
-
-        const part = await Parts.find({code});
+        const part = await query.limit(+payload.list_limit);
         resolve({
-            result: true,
-            code: code,
-            data: part
+          result: true,
+          data: part,
         });
+      }
+    } catch (err) {
+      reject(err);
     }
-    catch (err) {
-        reject(err);
-    }
-});
+  });
 
+exports.getPartsByCode = code =>
+  new Promise(async (resolve, reject) => {
+    try {
+      if (!code) {
+        resolve({
+          success: false,
+          message: 'code is required!!!',
+        });
+        return;
+      }
+
+      const part = await Parts.find({ code });
+      resolve({
+        result: true,
+        code: code,
+        data: part,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });

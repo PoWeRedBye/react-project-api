@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
         type:String,
     },
     /!*permissions:[{
-        addParts: {
+        registerNewParts: {
             type: Boolean,
             default: false,
         },
@@ -88,19 +88,27 @@ userSchema.methods.checkPassword = function (password) {
 module.exports = mongoose.model('User', userSchema);
 */
 
-const userSchema = new mongoose.Schema({
-  displayName: String,
-  email: {
-    type: String,
-    required: 'Укажите e-mail',
-    unique: 'Такой e-mail уже существует',
-  },
-  passwordHash: String,
-  salt: String,
-  forgotPasswordKey: {
-    type: String,
-    default: null,
-  }
+const userSchema = new mongoose.Schema(
+  {
+    displayName: String,
+    email: {
+      type: String,
+      required: 'Укажите e-mail',
+      unique: 'Такой e-mail уже существует',
+    },
+    user_photo: [
+      {
+        name: String,
+        path: String,
+        format_type: String,
+      },
+    ],
+    passwordHash: String,
+    salt: String,
+    forgotPasswordKey: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -108,25 +116,27 @@ const userSchema = new mongoose.Schema({
 );
 
 // TODO: сделать соль рандомной
-const salt = "]>ew+K@Z/-BU9rwxO=ZdT8b!ikg)lb!)-R/P)}@p2^x?5;wIGcav^J]7LW_f+%/1MqM7Zp:oWE;uD'rf`%duo!JD1{u^CF:-X<@SUI7|:yV5`Y/'-^sxt58ngvfBbY)vXId!HX|AA=,Rm3uFrt/'Vt$!O=M%9E)DdeX>Hh%c[h/p;Q&0OK6&?`9@@y{`oCj";
+const salt =
+  "]>ew+K@Z/-BU9rwxO=ZdT8b!ikg)lb!)-R/P)}@p2^x?5;wIGcav^J]7LW_f+%/1MqM7Zp:oWE;uD'rf`%duo!JD1{u^CF:-X<@SUI7|:yV5`Y/'-^sxt58ngvfBbY)vXId!HX|AA=,Rm3uFrt/'Vt$!O=M%9E)DdeX>Hh%c[h/p;Q&0OK6&?`9@@y{`oCj";
 //const salt = jwtConfig.salt;
 
+userSchema
+  .virtual('password')
+  .set(function(password) {
+    this._plainPassword = password;
+    if (password) {
+      this.passwordHash = crypto.pbkdf2Sync(password, salt, 1, 256, 'sha512').toString();
+    } else {
+      this.salt = undefined;
+      this.passwordHash = undefined;
+    }
+  })
 
-userSchema.virtual('password').set(function (password) {
-  this._plainPassword = password;
-  if (password) {
-    this.passwordHash = crypto.pbkdf2Sync(password, salt, 1, 256, 'sha512').toString();
-  } else {
-    this.salt = undefined;
-    this.passwordHash = undefined;
-  }
-})
-
-  .get(function () {
+  .get(function() {
     return this._plainPassword;
   });
 
-userSchema.methods.checkPassword = function (password) {
+userSchema.methods.checkPassword = function(password) {
   if (!password) return false;
   if (!this.passwordHash) return false;
   return crypto.pbkdf2Sync(password, salt, 1, 256, 'sha512').toString() === this.passwordHash;

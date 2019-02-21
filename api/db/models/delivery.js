@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const deliverySchema = new mongoose.Schema({
+const deliverySchema = new mongoose.Schema(
+  {
     item: String,
     amount: {
       type: Number,
@@ -8,7 +9,7 @@ const deliverySchema = new mongoose.Schema({
     },
     date: {
       type: Date,
-      default: Date.now(),  // текущий момент времени
+      default: Date.now(), // текущий момент времени
     },
     inOffice: Boolean,
     deliver_in: String,
@@ -18,9 +19,13 @@ const deliverySchema = new mongoose.Schema({
     //
   },
   {
-    timestamps: true
-  });
+    timestamps: true,
+  },
+);
 
-deliverySchema.createIndex({createdAt: Date.now()}, {expireAfterSeconds: 2592000 /* 30 days live */}); // need to be checked!!!
+deliverySchema.createIndex(
+  { createdAt: Date.now() },
+  { expireAfterSeconds: 2592000 /* 30 days live */ },
+); // need to be checked!!!
 
 module.exports = mongoose.model('Delivery', deliverySchema);

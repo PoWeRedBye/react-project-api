@@ -1,14 +1,16 @@
 const User = require('../db/models/user');
-const jwt = require('jsonwebtoken'); // аутентификация по JWT для hhtp
-const random = require('rand-token'); // random token generator
-// const passport = require('../passportjs/passport');
+const jwt = require('jsonwebtoken');
 const passport = require('koa-passport');
 const mail = require('../mail_sender/mailSender');
-// const jwt_config = require('/jwt_config');
+const fpu = require('../utils/forgotPassUtils');
+const random_string = require('randomstring');
+const passUtils = require('../utils/passwordUtils');
+const photoUtils = require('../utils/photoUtils');
+
 // POST - BASE_URL/addNewUser
 exports.addNewUser = payload =>
   new Promise(async (resolve, reject) => {
-    const {login, password, permissions} = payload;
+    const { login, password, permissions } = payload;
     try {
       if (!login) {
         resolve({
@@ -23,7 +25,7 @@ exports.addNewUser = payload =>
         });
         return;
       } else if (!permissions) {
-        const checkUser = await User.findOne({login});
+        const checkUser = await User.findOne({ login });
         if (!checkUser) {
           const newUser = new User({
             login: login,
@@ -31,14 +33,14 @@ exports.addNewUser = payload =>
           });
           await newUser.save();
           resolve({
-            result: true,
+            result: 200,
             data: newUser,
             message: 'this user have only a watch permissions!!!',
           });
           return;
         }
       } else {
-        const checkUser = await User.findOne({login});
+        const checkUser = await User.findOne({ login });
         if (!checkUser) {
           const newUser = new User({
             login: login,
@@ -47,7 +49,7 @@ exports.addNewUser = payload =>
           });
           await newUser.save();
           resolve({
-            result: true,
+            result: 200,
             data: newUser,
           });
           return;
@@ -71,21 +73,61 @@ exports.addNewUser = payload =>
 //   return everythingElse;
 // });
 
-
 // GET - BASE_URL/getAllUser
-exports.getAllUser = () => new Promise(async (resolve, reject) => {
-});
+exports.getAllUser = payload =>
+  new Promise(async (resolve, reject) => {
+    try {
+      //const {limit, offset} = payload;
+      if (payload.list_limit || payload.list_skip) {
+        let query = User.find({});
+        if (Number(+payload.list_skip) > 1) {
+          query = query.skip(+payload.list_limit * (+payload.list_skip - 1));
+        }
+        const users = await query.limit(+payload.list_limit);
+
+        const usersList = users.map(item => ({
+          id: item._id,
+          displayName: item.displayName,
+          email: item.email,
+          photo: item.user_photo.path,
+        }));
+
+        resolve({
+          result: 200,
+          data: usersList,
+          message: '-=-=-=-=',
+        });
+      } else {
+        const users = await User.find({});
+
+        const usersList = users.map(item => ({
+          _id: item._id,
+          displayName: item.displayName,
+          email: item.email,
+          photo: item.user_photo.path,
+        }));
+
+        resolve({
+          result: 200,
+          data: usersList,
+          message: '-=-=-=-=',
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
 
 // GET - BASE_URL/getSomeUser  --- надо подумать нужен ли мне этот метод!!!
 exports.getSomeUser = payload =>
   new Promise(async (resolve, reject) => {
-    const {login} = payload;
+    const { login } = payload;
   });
 
 // POST - BASE_URL/updateSomeUserPermissions -- не факт что мне эта фиговина нужна
 exports.updateSomeUserPermissions = payload =>
   new Promise(async (resolve, reject) => {
-    const {login, permissions} = payload;
+    const { login, permissions } = payload;
     try {
       if (!login) {
         resolve({
@@ -94,11 +136,11 @@ exports.updateSomeUserPermissions = payload =>
         });
         return;
       } else {
-        const myUser = await User.findOne({login});
+        const myUser = await User.findOne({ login });
         myUser.push(permissions);
         const updatedUser = await myUser.save();
         resolve({
-          result: true,
+          result: 200,
           data: updatedUser,
           message: 'you update user permissions',
         });
@@ -111,27 +153,62 @@ exports.updateSomeUserPermissions = payload =>
 // work
 exports.registerNewUser = payload =>
   new Promise(async (resolve, reject) => {
-    const {displayName, email, password} = payload;
+    const { displayName, email, password, user_photo } = payload;
     try {
-      const myNewUser = await User.create({
-        displayName: displayName,
-        email: email,
-        password: password,
-      });
-      const newUser = await User.findOne({email});
-      const jwt_payload = generatePayloadForJWTTokenFromUserModel(newUser);
-      const JWTToken = generateJWTTokenWithPayload(jwt_payload);
-      const refreshJWT = generateRefreshToken(jwt_payload);
-      resolve({
-        result: true,
-        user: jwt_payload,
-        token: JWTToken,
-        refreshToken: refreshJWT,
-      });
+      if (user_photo) {
+        const user_photo_model = photoUtils.savePhotoInServerDirectory(user_photo);
+        const myNewUser = await User.create({
+          displayName: displayName,
+          email: email,
+          password: password,
+          user_photo_name: user_photo_model.name,
+          user_photo_path: user_photo_model.path,
+          user_photo_type: user_photo_model.type,
+        });
+        const newUser = await User.findOne({ email });
+        const jwt_payload = generatePayloadForJWTTokenFromUserModel(newUser);
+        const JWTToken = generateJWTTokenWithPayload(jwt_payload);
+        const refreshJWT = generateRefreshToken(jwt_payload);
+        const user_model = generateUserModelFromUser(newUser);
+        const mail_opt_payload = generateMailOptForNewUser(displayName, email, password);
+        await mail.mailSend(mail.registerNewUserMailOpt(mail_opt_payload));
+        resolve({
+          result: 200,
+          user: user_model,
+          token: JWTToken,
+          refreshToken: refreshJWT,
+        });
+      } else {
+        //TODO: add avatar file check and app logic!!!
+        const myNewUser = await User.create({
+          displayName: displayName,
+          email: email,
+          password: password,
+        });
+        const newUser = await User.findOne({ email });
+        const jwt_payload = generatePayloadForJWTTokenFromUserModel(newUser);
+        const JWTToken = generateJWTTokenWithPayload(jwt_payload);
+        const refreshJWT = generateRefreshToken(jwt_payload);
+        const user_payload = generateUserModelFromUser(newUser);
+        const mail_opt_payload = generateMailOptForNewUser(displayName, email, password);
+        await mail.mailSend(mail.registerNewUserMailOpt(mail_opt_payload));
+        resolve({
+          result: 200,
+          user: user_payload,
+          token: JWTToken,
+          refreshToken: refreshJWT,
+        });
+      }
     } catch (err) {
       reject(err);
     }
   });
+
+const generateMailOptForNewUser = payload => ({
+  displayName: payload.displayName,
+  email: payload.email,
+  password: payload.password,
+});
 
 const generatePayloadForJWTTokenFromUserModel = user => ({
   id: user._id,
@@ -139,23 +216,38 @@ const generatePayloadForJWTTokenFromUserModel = user => ({
   displayName: user.displayName,
 });
 
-const generateJWTTokenWithPayload = payload => jwt.sign({payload}, 'react-api-jwt-secret', {expiresIn: 868686 /*10 days*/});
+const generateUserModelFromUser = user => ({
+  id: user._id,
+  email: user.email,
+  displayName: user.displayName,
+  userPhotoName: user.user_photo.name,
+  userPhotoPath: user.user_photo.path,
+  userPhotoType: user.user_photo.type,
+});
 
-const generateRefreshToken = payload => jwt.sign({payload}, 'react-api-refresh_jwt_secret', {expiresIn: 1737372 /*20 days*/});
+const generateJWTTokenWithPayload = payload =>
+  jwt.sign({ payload }, 'react-api-jwt-secret', { expiresIn: 868686 /*10 days*/ });
 
-const generateResetPasswordKey = payload => jwt.sign({payload}, 'react-api-reset_password_secret', {expiresIn: 86868 /*1 day*/});
+const generateRefreshToken = payload =>
+  jwt.sign({ payload }, 'react-api-refresh_jwt_secret', { expiresIn: 1737372 /*20 days*/ });
+
+const generateResetPasswordKey = payload =>
+  jwt.sign({ payload }, 'react-api-reset_password_secret', { expiresIn: 86868 /*1 day*/ });
 
 exports.userLogin = async ctx => {
   return new Promise(async (resolve, reject) => {
-    await passport.authenticate('local', function (error, user) {
+    my_logger(ctx.body);
+    await passport.authenticate('local', function(error, user) {
       if (user === false) {
         reject('Login failed');
       } else {
         const payload = generatePayloadForJWTTokenFromUserModel(user);
         const JWTToken = generateJWTTokenWithPayload(payload);
         const refreshJWT = generateRefreshToken(payload);
+        const user_payload = generateUserModelFromUser(user);
         resolve({
-          user: payload,
+          result: 200,
+          user: user_payload,
           token: JWTToken,
           refreshToken: refreshJWT,
         });
@@ -164,40 +256,123 @@ exports.userLogin = async ctx => {
   });
 };
 
-exports.forgotPass = async payload => new Promise(async (resolve, reject) => {
-  try {
-    const email = payload;
-    logger(payload);
-    logger(email);
-    if (!email) {
-      resolve({
-        result: false,
-        message: 'email is required!'
-      });
-    } else {
-      const user = await User.findOne({email: email});
-      if (!user) {
+exports.forgotPass = async payload =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const email = payload;
+      my_logger(payload);
+      my_logger(email);
+      if (!email) {
         resolve({
           result: false,
-          message: 'user not found'
+          message: 'email is required!',
         });
       } else {
-        const key_data = generatePayloadForJWTTokenFromUserModel(user);
-        const key = generateResetPasswordKey(key_data);
-        await User.findOneAndUpdate({_id: user._id}, {forgotPasswordKey: key});
-        const updated_user = await User.findOne({_id: user._id})
-        logger(updated_user);
-        await mail.mailSend(mail.mailOptions(updated_user));
+        const user = await User.findOne({ email: email });
+        if (!user) {
+          resolve({
+            result: false,
+            message: 'user not found',
+          });
+        } else {
+          const key_data = generatePayloadForJWTTokenFromUserModel(user);
+          const key = generateResetPasswordKey(key_data);
+          await User.findOneAndUpdate({ _id: user._id }, { forgotPasswordKey: key });
+          const updated_user = await User.findOne({ _id: user._id });
+          my_logger(updated_user);
+          await mail.mailSend(mail.getForgotPassKeyMailOpt(updated_user));
 
-        resolve({
-          result: true,
-          message: 'check your mail and follow the instructions',
-        });
+          resolve({
+            result: 200,
+            message: 'check your mail and follow the instructions',
+          });
+        }
       }
+    } catch (err) {
+      reject(err);
     }
-  } catch (err) {
-    reject(err);
-  }
+  });
 
-});
+exports.resetPassword = key =>
+  new Promise(async (resolve, reject) => {
+    try {
+      if (!key) {
+        resolve({
+          result: false,
+          message: 'key is required',
+        });
+      } else {
+        if (fpu.checkIsExpired(key)) {
+          const decoded_key = jwt.decode(key);
+          my_logger(decoded_key);
+          const new_pass = random_string.generate({
+            length: 16,
+            charset: 'alphanumeric',
+          });
+          my_logger(new_pass);
+          const new_pass_hash = await passUtils.hashNewPassword(new_pass);
+          await User.findOneAndUpdate(
+            { _id: decoded_key.payload.id },
+            { passwordHash: new_pass_hash },
+            { forgotPasswordKey: '' },
+          );
+          const payload = {
+            email: decoded_key.payload.email,
+            displayName: decoded_key.payload.displayName,
+            password: new_pass,
+          };
+          await mail.mailSend(mail.sendNewUserPassMailOpt(payload));
+          resolve({
+            result: 200,
+            message: 'we sent your new password to your email',
+          });
+        } else {
+          resolve({
+            result: false,
+            message: 'link is expired',
+          });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
 
+exports.changePassword = payload =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const { token, oldPass, newPass } = payload;
+      if (!oldPass || !newPass || !token) {
+        resolve({
+          result: false,
+          message: 'bad credentials',
+        });
+      } else {
+        const jwt_payload = jwt.decode(token);
+        const user = await User.findOne({ _id: jwt_payload.payload.id });
+        if (!user) {
+          resolve({
+            result: false,
+            message: 'user not found',
+          });
+        } else {
+          const hashOldPass = passUtils.hashNewPassword(oldPass);
+          if (hashOldPass === user.passwordHash) {
+            const hashNewPass = passUtils.hashNewPassword(newPass);
+            await User.findOneAndUpdate({ _id: user._id }, { passwordHash: hashNewPass });
+            resolve({
+              result: 200,
+              message: 'password is updated',
+            });
+          } else {
+            resolve({
+              result: false,
+              message: 'you enter a wrong password',
+            });
+          }
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });

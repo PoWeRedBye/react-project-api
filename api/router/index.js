@@ -5,27 +5,17 @@ const ContractPrinterApi = require('../printers/printers_api');
 const PrinterApi = require('../printers/printers_api');
 const UserApi = require('../user/user_api');
 const auth_utils = require('../utils/authUtils.js');
-const multer  = require('multer');
-const mail = require('../mail_sender/mailSender');
-const upload = multer({ dest: 'uploads/' });
-//TODO: Parts methods:
 
-router.post('/parts/addParts', async ctx => {
+const test_api = require('../utils/test_api');
+
+//TODO: Parts methods:
+router.post('/parts/registerNewParts', async ctx => {
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    console.log(myAuth);
-    if (myAuth) {
-    const result = await PartsApi.addParts({
+    const result = await PartsApi.registerNewParts({
       code: ctx.request.body.code,
       name: ctx.request.body.name,
-      amount: ctx.request.body.amount,
-      token: ctx.request.headers.get(auth),// надо бы проверить
     });
     ctx.body = result;
-    } else {                                                              // TODO: authenticate methods
-      ctx.status = 401;                                                   // TODO: authenticate methods
-      ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
   } catch (err) {
     console.error('err', err);
     ctx.status = 500;
@@ -35,32 +25,19 @@ router.post('/parts/addParts', async ctx => {
 
 router.get('/parts/getAllParts', async ctx => {
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    console.log(myAuth);
-    if (myAuth) {
-      const result = await PartsApi.getParts({...ctx.request.body});
-      ctx.body = result;
-    } else {                                                              // TODO: authenticate methods
-      ctx.status = 401;                                                   // TODO: authenticate methods
-      ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
+    ctx.body = await PartsApi.getAllParts({
+      limit: ctx.request.body.limit,
+      skip: ctx.request.body.skip,
+    });
   } catch (err) {
     console.error('err', err);
     ctx.status = 500;
     ctx.body = 'Internal error';
   }
 });
-router.get('/parts/getPartsByCode/:code', async ctx => {
+router.post('/parts/getPartsByCode', async ctx => {
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    console.log(myAuth);
-    if (myAuth) {
-    const result = await PartsApi.getPartsByCode({code: ctx.params.code});
-    ctx.body = result;
-  } else {                                                              // TODO: authenticate methods
-    ctx.status = 401;                                                   // TODO: authenticate methods
-    ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
+    ctx.body = await PartsApi.getPartsByCode({ code: ctx.request.body.code });
   } catch (err) {
     console.error('err', err);
     ctx.status = 500;
@@ -75,29 +52,16 @@ router.get('/', async ctx => {
 
 //TODO: Printer methods:
 
-//const LOWOOT = upload.fields([{ name: 'printer_photo', maxCount: 1 }, { name: 'printer_location_photo', maxCount: 1 }]);
-router.post('/printer/contract/addContractPrinter'/*, LOWOOT*/, async ctx => {
-  //console.log(ctx.request.files);
-  //console.log(ctx.request.body);
-  const {name, type, path, size} = ctx.request.files.printer_photo;
-  logger(name, type, path, size);
-
+router.post('/printer/contract/addContractPrinter', async ctx => {
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    //console.log(myAuth);
-    if (myAuth) {
     const result = await ContractPrinterApi.addNewContractPrinter({
       printer_model: ctx.request.body.printer_model,
-      printer_serial_number: ctx.request.body.printer_serial_number,
+      printer_serial_number: ctx.request.body.printer_serial_number.toString(),
       client: ctx.request.body.client,
       printer_photo: ctx.request.files.printer_photo,
       printer_location_photo: ctx.request.files.printer_location_photo,
     });
     ctx.body = result;
-    } else {                                                              // TODO: authenticate methods
-      ctx.status = 401;                                                   // TODO: authenticate methods
-      ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
   } catch (err) {
     console.error('err', err);
     ctx.status = 500;
@@ -107,21 +71,15 @@ router.post('/printer/contract/addContractPrinter'/*, LOWOOT*/, async ctx => {
 
 router.post('/printer/addNewCounterToContractPrinter', async ctx => {
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    console.log(myAuth);
-    if (myAuth) {                                                         // TODO: authenticate methods
-      const result = await ContractPrinterApi.contractPrinterUpdate({
-          printer_model: ctx.request.body.printer_model,
-          printer_serial_number: ctx.request.body.printer_serial_number,
-          client: ctx.request.body.client,
-          date: ctx.request.body.date,
-          counter: ctx.request.body.counter,
-        });
-      ctx.body = result;
-    } else {                                                              // TODO: authenticate methods
-      ctx.status = 401;                                                   // TODO: authenticate methods
-      ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
+    // TODO: authenticate methods
+    const result = await ContractPrinterApi.contractPrinterUpdate({
+      printer_model: ctx.request.body.printer_model,
+      printer_serial_number: ctx.request.body.printer_serial_number,
+      client: ctx.request.body.client,
+      date: ctx.request.body.date,
+      counter: ctx.request.body.counter,
+    });
+    ctx.body = result;
   } catch (err) {
     console.error('err', err);
     ctx.status = err.message;
@@ -129,29 +87,20 @@ router.post('/printer/addNewCounterToContractPrinter', async ctx => {
   }
 });
 
-
-
 router.post('/printer/addNewPrinterRepair', async ctx => {
   console.log(ctx.request.body);
   try {
-    const myAuth = await auth_utils.checkAuth(ctx.request.header.token);  // TODO: authenticate methods
-    console.log(myAuth);
-    if (myAuth) {
-      const result = await PrinterApi.newPrinterRepair({
-        printer_model: ctx.request.body.printer_model,
-        executor: ctx.request.body.executor,
-        date: ctx.request.body.date,
-        invoice_number: ctx.request.body.invoice_number,
-        work_type: ctx.request.body.work_type,
-        client: ctx.request.body.client,
-        used_parts: ctx.request.body.used_parts,
-      });
-      console.log(result, 'tyt 4to-to doljno bit');
-      ctx.body = result;
-    } else {                                                              // TODO: authenticate methods
-      ctx.status = 401;                                                   // TODO: authenticate methods
-      ctx.body = 'Authentication error';                                  // TODO: authenticate methods
-    }
+    const result = await PrinterApi.newPrinterRepair({
+      printer_model: ctx.request.body.printer_model,
+      executor: ctx.request.body.executor,
+      date: ctx.request.body.date,
+      invoice_number: ctx.request.body.invoice_number,
+      work_type: ctx.request.body.work_type,
+      client: ctx.request.body.client,
+      used_parts: ctx.request.body.used_parts,
+    });
+    console.log(result, 'tyt 4to-to doljno bit');
+    ctx.body = result;
   } catch (err) {
     console.error('err', err);
     ctx.status = 500;
@@ -160,16 +109,7 @@ router.post('/printer/addNewPrinterRepair', async ctx => {
 });
 
 //TODO: User methods:
-/**
- * @api {post} /user/refreshAuthData Request User information
- * @apiName RefreshAuthData1
- * @apiGroup User
- *
- * @apiHeader {String} token Users unique access-key.
- *
- * @apiSuccess {String} token Users unique access-key.
- * @apiSuccess {String} refreshToken  Users unique access-key.
- */
+
 router.post('/user/refreshAuthData', async ctx => {
   console.log(ctx.request.headers);
   try {
@@ -181,22 +121,6 @@ router.post('/user/refreshAuthData', async ctx => {
   }
 });
 
-/**
- * @api {post} /user/registration Request User information
- * @apiName RefreshAuthData
- * @apiGroup User
- *
- * @apiHeader {String} token Users unique access-key.
- *
- * @apiParam  {String} displayName user first and last name.
- * @apiParam  {String} email user email.
- * @apiParam  {String} password user password.
- *
- * @apiSuccess {Object} user User information.
- * @apiSuccess {String} token Users unique access-key.
- * @apiSuccess {String} refreshToken  Users unique access-key.
- * @apiVersion 0.0.0
- */
 router.post('/user/registration', async ctx => {
   console.log(ctx.request.body);
   try {
@@ -204,6 +128,7 @@ router.post('/user/registration', async ctx => {
       displayName: ctx.request.body.displayName || ctx.request.body.login,
       email: ctx.request.body.email,
       password: ctx.request.body.password,
+      user_photo: ctx.request.body.user_photo,
     });
     ctx.body = result;
   } catch (err) {
@@ -215,6 +140,7 @@ router.post('/user/registration', async ctx => {
 
 router.post('/user/login', async ctx => {
   try {
+    my_logger(ctx.body);
     ctx.body = await UserApi.userLogin(ctx);
   } catch (err) {
     console.error('err', err);
@@ -224,12 +150,69 @@ router.post('/user/login', async ctx => {
 });
 
 //TODO: user forgot password methods:
-router.post('/user/forgot-password', async ctx =>{
+router.post('/user/forgot-password', async ctx => {
   try {
-    logger(ctx.request.body);
+    my_logger(ctx.request.body);
     ctx.body = await UserApi.forgotPass(ctx.request.body.email);
-  }catch (error) {
+  } catch (error) {
     console.error('err', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+router.post('/user/reset-password/:restore_pass_key', async ctx => {
+  try {
+    my_logger(ctx.params.restore_pass_key);
+    ctx.body = await UserApi.resetPassword(ctx.params.restore_pass_key);
+  } catch (error) {
+    console.error('err', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+router.post('/user/change-password', async ctx => {
+  try {
+    // надо делать
+  } catch (error) {
+    console.error('err', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+router.post('/user/get_all_user', async ctx => {
+  try {
+    ctx.body = await UserApi.getAllUser({
+      list_limit: ctx.request.body.limit,
+      list_skip: ctx.request.body.skip,
+    });
+  } catch (error) {
+    console.error('err', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+//TODO: paginations test
+
+router.post('/test/add', async ctx => {
+  try {
+    ctx.body = await test_api.uploadDataToDataBase();
+  } catch (error) {
+    my_logger('err', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+router.post('/public/test/get', async ctx => {
+  try {
+    //my_logger(ctx.params.page_number);
+    ctx.body = await test_api.getDataWithPagination(ctx.request.body.page_number);
+  } catch (error) {
+    my_logger('err', error);
     ctx.status = 500;
     ctx.body = 'Internal error';
   }

@@ -3,13 +3,15 @@ const User = require('../db/models/user');
 
 // TODO: sessions utils methods:
 
-const generateJWTTokenWithPayload = payload => jwt.sign({payload}, 'react-api-jwt-secret', { expiresIn: 868686 /*10 days*/});
+const generateJWTTokenWithPayload = payload =>
+  jwt.sign({ payload }, 'react-api-jwt-secret', { expiresIn: 868686 /*10 days*/ });
 
-const generateRefreshToken = payload => jwt.sign({payload}, 'react-api-refresh_jwt_secret',{ expiresIn: 1737372 /*20 days*/});
+const generateRefreshToken = payload =>
+  jwt.sign({ payload }, 'react-api-refresh_jwt_secret', { expiresIn: 1737372 /*20 days*/ });
 
 const decodeToken = token => jwt.decode(token);
 
-const getCurrentTimestamp = () => Math.round((new Date()).getTime() / 1000);
+const getCurrentTimestamp = () => Math.round(new Date().getTime() / 1000);
 
 const isTimestampExpired = expirationTimestamp => expirationTimestamp <= getCurrentTimestamp();
 
@@ -42,16 +44,16 @@ const updateTokenFromRefreshTokenData = token => {
 
   return {
     token: generateJWTTokenWithPayload(payload),
-    refreshToken: generateRefreshToken(payload)
+    refreshToken: generateRefreshToken(payload),
   };
 };
 
-const getPayloadFromDecodedToken = token =>{
+const getPayloadFromDecodedToken = token => {
   const payload = {
     id: token.id,
     displayName: token.displayName,
     email: token.email,
-    };
+  };
   return payload;
 };
 const checkUserFromDecodedToken = token => {
@@ -59,8 +61,8 @@ const checkUserFromDecodedToken = token => {
   checkUser(user);
   return user;
 };
-const checkUser = user =>{
-  if (user !== undefined){
+const checkUser = user => {
+  if (user !== undefined) {
     return true;
   } else {
     return false;

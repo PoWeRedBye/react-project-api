@@ -8,7 +8,6 @@ const random = require('rand-token'); // random token generator
 
 const User = require('../db/models/user');
 
-
 // need fix!!!
 /*const myUserLogin = (userdata) => (
     const user = [email = userdata.email, password = userdata.password];
@@ -45,24 +44,26 @@ const User = require('../db/models/user');
     }   //<= wtf
 );*/
 
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password',
-    session: false
-  },
-  (email, password, done) => {
-    User.findOne({email}, (err, user) => {
-      if (err) {
-        return done(err);
-      }
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+      session: false,
+    },
+    (email, password, done) => {
+      User.findOne({ email }, (err, user) => {
+        if (err) {
+          return done(err);
+        }
 
-      if (!user || !user.checkPassword(password)) {
-        return done(null, false, {message: 'Нет такого пользователя или пароль неверен.'});
-      }
-      return done(null, user);
-    });
-  }
-  )
+        if (!user || !user.checkPassword(password)) {
+          return done(null, false, { message: 'Нет такого пользователя или пароль неверен.' });
+        }
+        return done(null, user);
+      });
+    },
+  ),
 );
 
 // Ждем JWT в Header
@@ -74,21 +75,22 @@ const jwtOptions = {
 };
 
 //TODO: надо бы протестить!!!
-passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
-    const getCurrentTimestamp = () => Math.round((new Date()).getTime() / 1000);
+passport.use(
+  new JwtStrategy(jwtOptions, (jwt_payload, done) => {
+    const getCurrentTimestamp = () => Math.round(new Date().getTime() / 1000);
     if (jwt_payload.exp <= getCurrentTimestamp) {
       User.findById(jwt_payload.id, (err, user) => {
         if (err) {
-          return done(err)
+          return done(err);
         }
         if (user) {
-          done(null, user)
+          done(null, user);
         } else {
-          done(null, false)
+          done(null, false);
         }
-      })
+      });
     } else {
       return false;
     }
-  })
+  }),
 );
