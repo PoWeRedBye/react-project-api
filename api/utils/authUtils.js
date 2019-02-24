@@ -1,6 +1,6 @@
 const passport = require('koa-passport');
 const jwt = require('jsonwebtoken');
-const User = require('../db/models/user');
+const User = require('../db/entity/user');
 
 const getCurrentTimestamp = () => Math.round(new Date().getTime() / 1000); // TODO: authenticate methods
 const generateJWTTokenWithPayload = payload =>

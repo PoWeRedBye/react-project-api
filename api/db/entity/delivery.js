@@ -2,18 +2,18 @@ const mongoose = require('mongoose');
 
 const deliverySchema = new mongoose.Schema(
   {
-    item: String,
-    amount: {
-      type: Number,
-      default: 1,
-    },
+    client: String,
+    items: [{
+      item_name: String,
+      item_amount: Number,
+    }],
+    delivery_descriptions: String,
     date: {
       type: Date,
-      default: Date.now(), // текущий момент времени
+      default: Date.now(),
     },
     inOffice: Boolean,
-    deliver_in: String,
-    deliver_out: String,
+    finished: Boolean,
     // TODO: maybe this is work, but need to be checked
     // createdAt: { type: Date, expires: '30d', default: Date.now }
     //
@@ -25,7 +25,7 @@ const deliverySchema = new mongoose.Schema(
 
 deliverySchema.createIndex(
   { createdAt: Date.now() },
-  { expireAfterSeconds: 2592000 /* 30 days live */ },
+  { expireAfterSeconds: 60*60*24*30 /* 2592000 => 30 days live */ },
 ); // need to be checked!!!
 
 module.exports = mongoose.model('Delivery', deliverySchema);

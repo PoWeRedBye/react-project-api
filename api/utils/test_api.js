@@ -1,5 +1,5 @@
 const random_string = require('randomstring');
-const test_db = require('../db/models/test');
+const test_db = require('../db/entity/test');
 
 const generateAddData = () => {
   const data = [];

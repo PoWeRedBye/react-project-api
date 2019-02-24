@@ -1,9 +1,9 @@
 const Router = require('koa-router');
 const router = new Router();
-const PartsApi = require('../parts/parts_api');
-const ContractPrinterApi = require('../printers/printers_api');
-const PrinterApi = require('../printers/printers_api');
-const UserApi = require('../user/user_api');
+const PartsApi = require('../modules/parts_api');
+const ContractPrinterApi = require('../modules/printers_api');
+const PrinterApi = require('../modules/printers_api');
+const UserApi = require('../modules/user_api');
 const auth_utils = require('../utils/authUtils.js');
 
 const test_api = require('../utils/test_api');

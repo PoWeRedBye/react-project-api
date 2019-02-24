@@ -1,7 +1,7 @@
-const Printer = require('../db/models/printer');
-const ContractPrinter = require('../db/models/contract_printer');
-const PartsList = require('../db/models/parts_model');
-const ConsumptionParts = require('../db/models/consumption_parts');
+const Printer = require('../db/entity/printer');
+const ContractPrinter = require('../db/entity/contract_printer');
+const PartsList = require('../db/entity/parts_model');
+const ConsumptionParts = require('../db/entity/consumption_parts');
 const photoUtils = require('../utils/photoUtils');
 
 const fs = require('fs');

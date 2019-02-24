@@ -1,4 +1,4 @@
-const Parts = require('../db/models/parts_model');
+const Parts = require('../db/entity/parts_model');
 
 exports.registerNewParts = ({ code, name }) =>
   new Promise(async (resolve, reject) => {

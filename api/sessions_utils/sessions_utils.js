@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken'); // аутентификация по JWT для http
-const User = require('../db/models/user');
+const User = require('../db/entity/user');
 
 // TODO: sessions utils methods:
 

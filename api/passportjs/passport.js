@@ -6,7 +6,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt; // авторизация
 const jwt = require('jsonwebtoken'); // аутентификация по JWT для hhtp
 const random = require('rand-token'); // random token generator
 
-const User = require('../db/models/user');
+const User = require('../db/entity/user');
 
 // need fix!!!
 /*const myUserLogin = (userdata) => (

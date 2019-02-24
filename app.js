@@ -14,7 +14,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt; // авторизация
 
 
 const auth_utils = require('./api/utils/authUtils');
-const User = require('./api/db/models/user');
+const User = require('./api/db/entity/user');
 
 global.my_logger = (...args) => {
   console.log('*=>'.repeat(20));

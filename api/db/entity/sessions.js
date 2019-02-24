@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+//TODO: WTF: i don't remember who create this shit=))))
+
 const sessions = new mongoose.Schema({
   login: {
     type: String,

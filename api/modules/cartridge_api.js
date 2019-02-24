@@ -1,6 +1,6 @@
-const PartsList = require('../db/models/parts_model');
-const ConsumptionParts = require('../db/models/consumption_parts');
-const Cartridge = require('../db/models/cartridge');
+const PartsList = require('../db/entity/parts_model');
+const ConsumptionParts = require('../db/entity/consumption_parts');
+const Cartridge = require('../db/entity/cartridge');
 
 exports.newCartridgeRefill = payload =>
   new Promise(async (resolve, reject) => {
