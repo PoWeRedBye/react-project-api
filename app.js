@@ -5,6 +5,7 @@ const router = require('./api/router/index');
 const serve = require('koa-static'); // модуль, который отдает статические файлы типа index.html из заданной директории
 const logger = require('koa-logger'); // опциональный модуль для логов сетевых запросов. Полезен при разработке.
 const jwt = require('koa-jwt');
+const cors = require('@koa/cors');
 
 // PASSPORT.JS
 const passport = require('koa-passport'); //реализация passport для Koa
@@ -91,6 +92,7 @@ passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
     }
   })
 );
+app.use(cors());
 app.use(serve('public'));
 app.use(logger());
 // Unprotected middleware
@@ -128,6 +130,6 @@ app.use(koaBody({multipart: true}));
 app.use(passport.initialize());
 app.use(router.routes());                 // - было
 app.use(router.allowedMethods());         // - было
-const server = app.listen(3000, () => {
-  console.log('http://localhost:3000');
+const server = app.listen(3030, () => {
+  console.log('http://localhost:3030');
 });
