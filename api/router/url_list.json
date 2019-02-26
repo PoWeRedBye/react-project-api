@@ -1,0 +1,13 @@
+{
+  "public_url": {
+    "login": "/user/login",
+    "registration":"/user/registration",
+    "forgot_password":"/user/forgot-password",
+    "refresh_auth_data":"/user/refreshAuthData",
+    "test_add":"/test/add",
+    "test_get":"/public/test/get",
+  },
+  "auth_url":{
+
+  }
+}
