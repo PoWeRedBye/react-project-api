@@ -11,24 +11,6 @@ const contractPrinterShema = new mongoose.Schema({
   client: {
     type: String,
   },
-  //TODO: Photo stores data
-  printer_photo: [
-    {
-      name: String,
-      path: String,
-      format_type: String,
-    },
-  ],
-  printer_location_photo: [
-    {
-      name: String,
-      path: String,
-      format_type: String,
-    },
-  ],
-  how_to_get_counters_procedure: {
-    type: String,
-  },
   current_counter: {
     type: Number,
   },
@@ -38,11 +20,30 @@ const contractPrinterShema = new mongoose.Schema({
   counters: [
     {
       date: {
-        type: String,
+        type: Date,
+        default: Date.now(),
       },
       counter: {
         type: Number,
       },
+      new_cartridge:{
+        type: Boolean,
+      },
+      new_fix_unit:{
+        type: Boolean,
+      },
+      new_oscillatory_node: {
+        type: Boolean,
+      },
+      new_rollers:{
+        type: Boolean,
+      },
+      new_maintenance:{
+        type: Boolean,
+      },
+      nothing: {
+        type: Boolean,
+      }
     },
   ],
 });

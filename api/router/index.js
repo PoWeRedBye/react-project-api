@@ -58,8 +58,7 @@ router.post('/printer/contract/addContractPrinter', async ctx => {
       printer_model: ctx.request.body.printer_model,
       printer_serial_number: ctx.request.body.printer_serial_number.toString(),
       client: ctx.request.body.client,
-      printer_photo: ctx.request.files.printer_photo,
-      printer_location_photo: ctx.request.files.printer_location_photo,
+      current_counter: ctx.request.body.current_counter,
     });
     ctx.body = result;
   } catch (err) {
@@ -69,15 +68,31 @@ router.post('/printer/contract/addContractPrinter', async ctx => {
   }
 });
 
-router.post('/printer/addNewCounterToContractPrinter', async ctx => {
+router.post('/printer/contract/getAllContractPrinterByClient', async ctx => {
+  try {
+    const result = await ContractPrinterApi.getContractPrintersByClient({
+      client: ctx.request.body.client,
+    });
+    ctx.body = result;
+  } catch (error) {
+    console.error('error', error);
+    ctx.status = 500;
+    ctx.body = 'Internal error';
+  }
+});
+
+router.post('/printer/contract/addNewCounterToContractPrinter', async ctx => {
   try {
     // TODO: authenticate methods
     const result = await ContractPrinterApi.contractPrinterUpdate({
-      printer_model: ctx.request.body.printer_model,
       printer_serial_number: ctx.request.body.printer_serial_number,
-      client: ctx.request.body.client,
-      date: ctx.request.body.date,
       counter: ctx.request.body.counter,
+      new_cartridge: ctx.request.body.new_cartridge,
+      new_fix_unit: ctx.request.body.new_fix_unit,
+      new_oscillatory_node: ctx.request.body.new_oscillatory_node,
+      new_rollers: ctx.request.body.new_rollers,
+      new_maintenance: ctx.request.body.new_maintenance,
+      nothing: ctx.request.body.nothing,
     });
     ctx.body = result;
   } catch (err) {
