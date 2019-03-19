@@ -235,21 +235,25 @@ exports.contractPrinterUpdate = (payload) =>
       }
       const contractPrinter = await ContractPrinter.findOne({ printer_serial_number });
       if (contractPrinter.current_counter !== null) {
-        contractPrinter.previous_counter = contractPrinter.current_counter;
-        contractPrinter.current_counter = counter;
-        contractPrinter.counters.push({ counter,
-          new_cartridge,
-          new_fix_unit,
-          new_oscillatory_node,
-          new_rollers,
-          new_maintenance,
-          nothing});
-        const contract_printer = await contractPrinter.save();
-        resolve({
-          result: true,
-          data: contract_printer,
-        });
-        return;
+        if (contractPrinter.current_counter > counter) {
+          resolve({ result: false, message: 'wrong counters' });
+          return;
+        } else {
+          contractPrinter.previous_counter = contractPrinter.current_counter;
+          contractPrinter.current_counter = counter;
+          contractPrinter.counters.push({
+            counter,
+            new_cartridge,
+            new_fix_unit,
+            new_oscillatory_node,
+            new_rollers,
+            new_maintenance,
+            nothing,
+          });
+          const contract_printer = await contractPrinter.save();
+          resolve({ result: true, data: contract_printer });
+          return;
+        }
       } else {
         contractPrinter.counters.push({ counter,
           new_cartridge,
