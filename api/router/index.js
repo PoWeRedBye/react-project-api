@@ -70,9 +70,7 @@ router.post('/printer/contract/addContractPrinter', async ctx => {
 
 router.post('/printer/contract/getAllContractPrinterByClient', async ctx => {
   try {
-    const result = await ContractPrinterApi.getContractPrintersByClient({
-      client: ctx.request.body.client,
-    });
+    const result = await ContractPrinterApi.getContractPrintersByClient(ctx.request.body);
     ctx.body = result;
   } catch (error) {
     console.error('error', error);

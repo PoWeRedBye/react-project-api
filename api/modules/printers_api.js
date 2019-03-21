@@ -160,12 +160,7 @@ exports.addNewContractPrinter = payload =>
   new Promise(async (resolve, reject) => {
     console.log(payload);
     try {
-      const {
-        printer_model,
-        printer_serial_number,
-        client,
-        current_counter
-      } = payload;
+      const { printer_model, printer_serial_number, client, current_counter } = payload;
 
       if (!printer_model || !printer_serial_number || !client) {
         resolve({
@@ -186,7 +181,7 @@ exports.addNewContractPrinter = payload =>
           result: true,
           data: contractPrinter,
         });
-      } else if(!newPrinter && current_counter){
+      } else if (!newPrinter && current_counter) {
         const newContractPrinter = new ContractPrinter({
           printer_model: printer_model,
           printer_serial_number: printer_serial_number,
@@ -209,16 +204,18 @@ exports.addNewContractPrinter = payload =>
     }
   });
 // POST -> BASE_URL/addNewCounterToContractPrinter
-exports.contractPrinterUpdate = (payload) =>
+exports.contractPrinterUpdate = payload =>
   new Promise(async (resolve, reject) => {
-    const {printer_serial_number,
+    const {
+      printer_serial_number,
       counter,
       new_cartridge,
       new_fix_unit,
       new_oscillatory_node,
       new_rollers,
       new_maintenance,
-      nothing} = payload;
+      nothing,
+    } = payload;
     try {
       if (!counter) {
         resolve({
@@ -226,10 +223,10 @@ exports.contractPrinterUpdate = (payload) =>
           message: 'counter is required',
         });
         return;
-      } else if (!printer_serial_number){
+      } else if (!printer_serial_number) {
         resolve({
           result: false,
-          message: 'serial number is required'
+          message: 'serial number is required',
         });
         return;
       }
@@ -255,13 +252,15 @@ exports.contractPrinterUpdate = (payload) =>
           return;
         }
       } else {
-        contractPrinter.counters.push({ counter,
+        contractPrinter.counters.push({
+          counter,
           new_cartridge,
           new_fix_unit,
           new_oscillatory_node,
           new_rollers,
           new_maintenance,
-          nothing});
+          nothing,
+        });
         contractPrinter.current_counter = counter;
         const contract_printer = await contractPrinter.save();
         resolve({
@@ -275,22 +274,28 @@ exports.contractPrinterUpdate = (payload) =>
   });
 
 // GET -> BASE_URL/getPrinterByClient
-exports.getContractPrintersByClient = (payload) =>
+exports.getContractPrintersByClient = payload =>
   new Promise(async (resolve, reject) => {
     try {
-      if (!payload.client) {
-        resolve({
-          result: false,
-          message: 'client is required!',
-        });
-        return;
-      } else {
-        const someClientPrinters = await ContractPrinter.find({ client: payload.client });
-        resolve({
-          result: true,
-          data: someClientPrinters,
-        });
+      const { client, limit = 50, page = 1 } = payload;
+
+      const filters = {};
+      if (client) {
+        filters.client = client;
       }
+
+      const query = ContractPrinter.find(filters);
+
+      if (+page > 1) {
+        query.skip(+limit * (+page - 1));
+      }
+
+      const printers = await query.limit(+limit);
+
+      resolve({
+        result: true,
+        data: printers,
+      });
     } catch (err) {
       reject(err);
     }
