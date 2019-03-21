@@ -119,7 +119,7 @@ exports.not_finished_deliveries = payload => new Promise(async (resolve, reject)
     if (deliveries) {
       resolve({
         result: true,
-        data: deliveries,
+        payload: deliveries,
       });
     } else {
       resolve({
@@ -139,7 +139,7 @@ exports.delivery_finish = payload => new Promise(async (resolve, reject) => {
       const delivery = await delivery_db.find({finished: false}).limit(50);
       resolve({
         result: true,
-        data: delivery,
+        payload: delivery,
       });
     } else {
       resolve({

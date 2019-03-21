@@ -24,12 +24,12 @@ exports.registerNewParts = ({ code, name }) =>
         });
         const part = await newParts.save();
         resolve({
-          result: 200,
+          result: true,
           message: 'you register new parts',
         });
       } else {
         resolve({
-          result: 200,
+          result: true,
           message: 'this parts already have in database',
         });
       }
@@ -49,7 +49,7 @@ exports.getAllParts = payload =>
         const part = await query.limit(+payload.list_limit);
         resolve({
           result: true,
-          data: part,
+          payload: part,
         });
       }
     } catch (err) {
@@ -72,7 +72,7 @@ exports.getPartsByCode = code =>
       resolve({
         result: true,
         code: code,
-        data: part,
+        payload: part,
       });
     } catch (err) {
       reject(err);

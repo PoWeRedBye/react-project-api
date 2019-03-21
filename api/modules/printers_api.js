@@ -56,7 +56,7 @@ exports.newPrinterRepair = payload =>
         const new_repair_printer = await newPrinterRepair.save();
         resolve({
           result: true,
-          data: new_repair_printer,
+          payload: new_repair_printer,
         });
         return;
       } else if (used_parts.length) {
@@ -179,7 +179,7 @@ exports.addNewContractPrinter = payload =>
         const contractPrinter = await newContractPrinter.save();
         resolve({
           result: true,
-          data: contractPrinter,
+          payload: contractPrinter,
         });
       } else if (!newPrinter && current_counter) {
         const newContractPrinter = new ContractPrinter({
@@ -191,7 +191,7 @@ exports.addNewContractPrinter = payload =>
         const contractPrinter = await newContractPrinter.save();
         resolve({
           result: true,
-          data: contractPrinter,
+          payload: contractPrinter,
         });
       } else {
         resolve({
@@ -234,7 +234,6 @@ exports.contractPrinterUpdate = payload =>
       if (contractPrinter.current_counter !== null) {
         if (contractPrinter.current_counter > counter) {
           resolve({ result: false, message: 'wrong counters' });
-          return;
         } else {
           contractPrinter.previous_counter = contractPrinter.current_counter;
           contractPrinter.current_counter = counter;
@@ -248,8 +247,7 @@ exports.contractPrinterUpdate = payload =>
             nothing,
           });
           const contract_printer = await contractPrinter.save();
-          resolve({ result: true, data: contract_printer });
-          return;
+          resolve({ result: true, payload: contract_printer });
         }
       } else {
         contractPrinter.counters.push({
@@ -265,7 +263,7 @@ exports.contractPrinterUpdate = payload =>
         const contract_printer = await contractPrinter.save();
         resolve({
           result: true,
-          data: contract_printer,
+          payload: contract_printer,
         });
       }
     } catch (err) {
@@ -294,7 +292,7 @@ exports.getContractPrintersByClient = payload =>
 
       resolve({
         result: true,
-        data: printers,
+        payload: printers,
       });
     } catch (err) {
       reject(err);
@@ -315,7 +313,7 @@ exports.getPrinterBySN = ({ printer_serial_number }) =>
         const somePrinterBySN = await ContractPrinter.findOne({ printer_serial_number });
         resolve({
           result: true,
-          data: somePrinterBySN,
+          payload: somePrinterBySN,
         });
       }
     } catch (err) {
@@ -336,7 +334,7 @@ exports.getAllPrinterRepair = () =>
       } else {
         resolve({
           result: true,
-          data: allRepairedPrinters,
+          payload: allRepairedPrinters,
         });
       }
     } catch (err) {

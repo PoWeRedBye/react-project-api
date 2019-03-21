@@ -23,8 +23,8 @@ exports.uploadDataToDataBase = () =>
       my_logger(new_test_model);
       const get_data = await test_db.find({});
       resolve({
-        data: get_data,
         result: true,
+        payload: get_data,
       });
     } catch (error) {
       reject(error);
@@ -43,7 +43,7 @@ exports.getDataWithPagination = payload =>
       const test_data = await query.limit(5);
       resolve({
         result: true,
-        data: test_data,
+        payload: test_data,
         message: `your data for page ${page_number}`,
       });
     } catch (error) {

@@ -33,8 +33,8 @@ exports.addNewUser = payload =>
           });
           await newUser.save();
           resolve({
-            result: 200,
-            data: newUser,
+            result: true,
+            payload: newUser,
             message: 'this user have only a watch permissions!!!',
           });
           return;
@@ -49,8 +49,8 @@ exports.addNewUser = payload =>
           });
           await newUser.save();
           resolve({
-            result: 200,
-            data: newUser,
+            result: true,
+            payload: newUser,
           });
           return;
         } else {
@@ -93,8 +93,8 @@ exports.getAllUser = payload =>
         }));
 
         resolve({
-          result: 200,
-          data: usersList,
+          result: true,
+          payload: usersList,
           message: '-=-=-=-=',
         });
       } else {
@@ -108,8 +108,8 @@ exports.getAllUser = payload =>
         }));
 
         resolve({
-          result: 200,
-          data: usersList,
+          result: true,
+          payload: usersList,
           message: '-=-=-=-=',
         });
       }
@@ -140,8 +140,8 @@ exports.updateSomeUserPermissions = payload =>
         myUser.push(permissions);
         const updatedUser = await myUser.save();
         resolve({
-          result: 200,
-          data: updatedUser,
+          result: true,
+          payload: updatedUser,
           message: 'you update user permissions',
         });
       }
@@ -173,7 +173,7 @@ exports.registerNewUser = payload =>
         const mail_opt_payload = generateMailOptForNewUser(displayName, email, password);
         await mail.mailSend(mail.registerNewUserMailOpt(mail_opt_payload));
         resolve({
-          result: 200,
+          result: true,
           user: user_model,
           token: JWTToken,
           refreshToken: refreshJWT,
@@ -193,7 +193,7 @@ exports.registerNewUser = payload =>
         const mail_opt_payload = generateMailOptForNewUser(displayName, email, password);
         await mail.mailSend(mail.registerNewUserMailOpt(mail_opt_payload));
         resolve({
-          result: 200,
+          result: true,
           user: user_payload,
           token: JWTToken,
           refreshToken: refreshJWT,
@@ -246,7 +246,7 @@ exports.userLogin = async ctx => {
         const refreshJWT = generateRefreshToken(payload);
         const user_payload = generateUserModelFromUser(user);
         resolve({
-          result: 200,
+          result: true,
           user: user_payload,
           token: JWTToken,
           refreshToken: refreshJWT,
@@ -283,7 +283,7 @@ exports.forgotPass = async payload =>
           await mail.mailSend(mail.getForgotPassKeyMailOpt(updated_user));
 
           resolve({
-            result: 200,
+            result: true,
             message: 'check your mail and follow the instructions',
           });
         }
@@ -323,7 +323,7 @@ exports.resetPassword = key =>
           };
           await mail.mailSend(mail.sendNewUserPassMailOpt(payload));
           resolve({
-            result: 200,
+            result: true,
             message: 'we sent your new password to your email',
           });
         } else {
@@ -361,7 +361,7 @@ exports.changePassword = payload =>
             const hashNewPass = passUtils.hashNewPassword(newPass);
             await User.findOneAndUpdate({ _id: user._id }, { passwordHash: hashNewPass });
             resolve({
-              result: 200,
+              result: true,
               message: 'password is updated',
             });
           } else {

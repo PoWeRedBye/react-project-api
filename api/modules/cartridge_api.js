@@ -59,9 +59,8 @@ exports.newCartridgeRefill = payload =>
         const new_cartridge_refill = await newCartridgeRefill.save();
         resolve({
           result: true,
-          data: new_cartridge_refill,
+          payload: new_cartridge_refill,
         });
-        return;
       } else if (used_parts.length) {
         // get same parts but from database
         let selectedPartsFromDB = await PartsList.find({
@@ -163,7 +162,7 @@ exports.getAllRefill = () =>
       const allRefill = await Cartridge.find();
       resolve({
         result: true,
-        data: allRefill,
+        payload: allRefill,
       });
     } catch (err) {
       reject(err);
@@ -179,12 +178,11 @@ exports.getRefillByClient = client =>
           result: false,
           message: 'client is required!!!',
         });
-        return;
       } else {
         const someClientRefill = await Cartridge.find({ client });
         resolve({
           result: true,
-          data: someClientRefill,
+          payload: someClientRefill,
         });
       }
     } catch (err) {
@@ -201,12 +199,11 @@ exports.getAllRefillByCartridgeCode = cartridge_code =>
           result: false,
           message: 'cartridge code is required!!!',
         });
-        return;
       } else {
         const allRefillByCode = await Cartridge.find({ cartridge_code });
         resolve({
           result: true,
-          data: allRefillByCode,
+          payload: allRefillByCode,
         });
       }
     } catch (err) {

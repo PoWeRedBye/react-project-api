@@ -33,7 +33,7 @@ const User = require('../db/entity/user');
 
                 /!*resolve({
                     result: true,
-                    data: user.displayName, token, refreshToken,
+                    payload: user.displayName, token, refreshToken,
                     message: 'JWT: ' + token + '; refresh token: ' + refreshToken,
                 });*!/
                 return [user.displayName, token, refreshToken];
