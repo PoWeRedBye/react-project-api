@@ -102,8 +102,9 @@ exports.add_new_delivery = payload => new Promise(async (resolve, reject) => {
         message: 'You have successfully created a new delivery',
       });
     } else {
-      resolve({
+      reject({
         result: false,
+        code: 400,
         message: 'bad credentials'
       });
     }
@@ -122,8 +123,9 @@ exports.not_finished_deliveries = payload => new Promise(async (resolve, reject)
         payload: deliveries,
       });
     } else {
-      resolve({
+      reject({
         result: false,
+        code: 400,
         message: 'bad credentials'
       });
     }
@@ -142,8 +144,9 @@ exports.delivery_finish = payload => new Promise(async (resolve, reject) => {
         payload: delivery,
       });
     } else {
-      resolve({
+      reject({
         result: false,
+        code: 400,
         message: 'bad credentials'
       });
     }
@@ -161,8 +164,9 @@ exports.delivery_update = payload => new Promise(async (resolve, reject) => {
         result: true,
       });
     } else {
-      resolve({
+      reject({
         result: false,
+        code: 400,
         message: 'bad credentials'
       });
     }
@@ -170,3 +174,5 @@ exports.delivery_update = payload => new Promise(async (resolve, reject) => {
     reject(error);
   }
 });
+
+//TODO: need review and refactoring this class, many stupid methods without!!!

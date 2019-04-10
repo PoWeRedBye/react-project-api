@@ -21,29 +21,29 @@ exports.newPrinterRepair = payload =>
 
     try {
       if (!printer_model) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'printer model is required!!!',
         });
-        return;
       } else if (!executor) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'executor is required!!!',
         });
-        return;
       } else if (!work_type) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'work type is required!!!',
         });
-        return;
       } else if (!client) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'client is required!!!',
         });
-        return;
       } else if (!used_parts) {
         const newPrinterRepair = new Printer({
           printer_model,
@@ -58,7 +58,6 @@ exports.newPrinterRepair = payload =>
           result: true,
           payload: new_repair_printer,
         });
-        return;
       } else if (used_parts.length) {
         // get same parts but from database
         let selectedPartsFromDB = await PartsList.find({
@@ -67,12 +66,11 @@ exports.newPrinterRepair = payload =>
         // check if all parts exist in database
         if (used_parts.length !== selectedPartsFromDB.length) {
           // throw error
-          resolve({
+          reject({
             success: false,
+            code: 400,
             message: 'items not found in db',
           });
-          return;
-          // return error;
         }
 
         // format parts list from database to simplify further usage
@@ -87,8 +85,9 @@ exports.newPrinterRepair = payload =>
 
         if (failedPartsList.length) {
           // throw error
-          resolve({
+          reject({
             success: false,
+            code: 400,
             message: 'items amount is not correct ',
           });
           return;
@@ -163,8 +162,9 @@ exports.addNewContractPrinter = payload =>
       const { printer_model, printer_serial_number, client, current_counter } = payload;
 
       if (!printer_model || !printer_serial_number || !client) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'bad credentials',
         });
         return;
@@ -175,6 +175,7 @@ exports.addNewContractPrinter = payload =>
           printer_model: printer_model,
           printer_serial_number: printer_serial_number,
           client: client,
+          current_counter : 0,
         });
         const contractPrinter = await newContractPrinter.save();
         resolve({
@@ -194,8 +195,9 @@ exports.addNewContractPrinter = payload =>
           payload: contractPrinter,
         });
       } else {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'this serial number is already in database',
         });
       }
@@ -203,7 +205,22 @@ exports.addNewContractPrinter = payload =>
       reject(err);
     }
   });
+
 // POST -> BASE_URL/addNewCounterToContractPrinter
+/*
+body = {
+  printer_serial_number,
+  counter: {
+    counter,
+    new_cartridge,
+    new_fix_unit,
+    new_oscillatory_node,
+    new_rollers,
+    new_maintenance,
+    nothing,
+  }
+};
+ */
 exports.contractPrinterUpdate = payload =>
   new Promise(async (resolve, reject) => {
     const {
@@ -218,22 +235,24 @@ exports.contractPrinterUpdate = payload =>
     } = payload;
     try {
       if (!counter) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'counter is required',
         });
         return;
       } else if (!printer_serial_number) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'serial number is required',
         });
         return;
       }
       const contractPrinter = await ContractPrinter.findOne({ printer_serial_number });
       if (contractPrinter.current_counter !== null) {
-        if (contractPrinter.current_counter > counter) {
-          resolve({ result: false, message: 'wrong counters' });
+        if (contractPrinter.current_counter >= counter) {
+          reject({ result: false,  code: 400, message: 'wrong counters' });
         } else {
           contractPrinter.previous_counter = contractPrinter.current_counter;
           contractPrinter.current_counter = counter;
@@ -279,7 +298,7 @@ exports.getContractPrintersByClient = payload =>
 
       const filters = {};
       if (client) {
-        filters.client = client;
+        filters.client = { '$regex': client };
       }
 
       const query = ContractPrinter.find(filters);

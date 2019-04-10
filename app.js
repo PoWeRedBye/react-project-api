@@ -122,7 +122,7 @@ app.use(async (ctx, next) => {
   if (await auth_utils.checkAuth(ctx.request.header.token)) {
     return next();
   }
-  return ctx.body = 401;
+  return ctx.status = 401;
   // return 401
 });
 require('./api/db/mongodb');              // - было

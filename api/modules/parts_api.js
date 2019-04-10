@@ -4,17 +4,18 @@ exports.registerNewParts = ({ code, name }) =>
   new Promise(async (resolve, reject) => {
     try {
       if (!code) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'code is required!!!',
         });
         return;
       } else if (!name) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'name is required!!!',
         });
-        return;
       }
       const partCheck = await Parts.find({ code });
       if (!partCheck) {
@@ -61,8 +62,9 @@ exports.getPartsByCode = code =>
   new Promise(async (resolve, reject) => {
     try {
       if (!code) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'code is required!!!',
         });
         return;

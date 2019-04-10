@@ -13,17 +13,17 @@ exports.addNewUser = payload =>
     const { login, password, permissions } = payload;
     try {
       if (!login) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'login is required',
         });
-        return;
       } else if (!password) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'password is required',
         });
-        return;
       } else if (!permissions) {
         const checkUser = await User.findOne({ login });
         if (!checkUser) {
@@ -37,7 +37,6 @@ exports.addNewUser = payload =>
             payload: newUser,
             message: 'this user have only a watch permissions!!!',
           });
-          return;
         }
       } else {
         const checkUser = await User.findOne({ login });
@@ -52,13 +51,12 @@ exports.addNewUser = payload =>
             result: true,
             payload: newUser,
           });
-          return;
         } else {
-          resolve({
-            result: false,
+          reject({
+            reject: false,
+            code: 400,
             message: 'this login is already used!!!',
           });
-          return;
         }
       }
     } catch (err) {
@@ -130,11 +128,11 @@ exports.updateSomeUserPermissions = payload =>
     const { login, permissions } = payload;
     try {
       if (!login) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'pick some user plz',
         });
-        return;
       } else {
         const myUser = await User.findOne({ login });
         myUser.push(permissions);
@@ -239,7 +237,11 @@ exports.userLogin = async ctx => {
     my_logger(ctx.body);
     await passport.authenticate('local', function(error, user) {
       if (user === false) {
-        reject('Login failed');
+        reject({
+          result: false,
+          code: 401,
+          message:'Login failed',
+        });
       } else {
         const payload = generatePayloadForJWTTokenFromUserModel(user);
         const JWTToken = generateJWTTokenWithPayload(payload);
@@ -263,15 +265,17 @@ exports.forgotPass = async payload =>
       my_logger(payload);
       my_logger(email);
       if (!email) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'email is required!',
         });
       } else {
         const user = await User.findOne({ email: email });
         if (!user) {
-          resolve({
+          reject({
             result: false,
+            code: 400,
             message: 'user not found',
           });
         } else {
@@ -297,8 +301,9 @@ exports.resetPassword = key =>
   new Promise(async (resolve, reject) => {
     try {
       if (!key) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'key is required',
         });
       } else {
@@ -327,8 +332,9 @@ exports.resetPassword = key =>
             message: 'we sent your new password to your email',
           });
         } else {
-          resolve({
+          reject({
             result: false,
+            code: 400,
             message: 'link is expired',
           });
         }
@@ -343,16 +349,18 @@ exports.changePassword = payload =>
     try {
       const { token, oldPass, newPass } = payload;
       if (!oldPass || !newPass || !token) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'bad credentials',
         });
       } else {
         const jwt_payload = jwt.decode(token);
         const user = await User.findOne({ _id: jwt_payload.payload.id });
         if (!user) {
-          resolve({
+          reject({
             result: false,
+            code: 400,
             message: 'user not found',
           });
         } else {
@@ -365,8 +373,9 @@ exports.changePassword = payload =>
               message: 'password is updated',
             });
           } else {
-            resolve({
+            reject({
               result: false,
+              code: 400,
               message: 'you enter a wrong password',
             });
           }

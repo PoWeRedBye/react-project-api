@@ -20,8 +20,9 @@ const contractPrinterShema = new mongoose.Schema({
   counters: [
     {
       date: {
-        type: Date,
-        default: new Date().toUTCString(),
+        type: Number,
+        //default: new Date().getTime(),
+        default: Date.now(),
       },
       counter: {
         type: Number,

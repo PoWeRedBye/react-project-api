@@ -18,8 +18,8 @@ router.post('/parts/registerNewParts', async ctx => {
     ctx.body = result;
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -31,8 +31,8 @@ router.get('/parts/getAllParts', async ctx => {
     });
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 router.post('/parts/getPartsByCode', async ctx => {
@@ -40,8 +40,8 @@ router.post('/parts/getPartsByCode', async ctx => {
     ctx.body = await PartsApi.getPartsByCode({ code: ctx.request.body.code });
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -63,8 +63,8 @@ router.post('/printer/contract/addContractPrinter', async ctx => {
     ctx.body = result;
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -72,10 +72,10 @@ router.post('/printer/contract/getAllContractPrinterByClient', async ctx => {
   try {
     const result = await ContractPrinterApi.getContractPrintersByClient(ctx.request.body);
     ctx.body = result;
-  } catch (error) {
-    console.error('error', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('error', err);
+    ctx.status = error.code;
+    ctx.body = error;
   }
 });
 
@@ -95,8 +95,8 @@ router.post('/printer/contract/addNewCounterToContractPrinter', async ctx => {
     ctx.body = result;
   } catch (err) {
     console.error('err', err);
-    ctx.status = err.message;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -116,8 +116,8 @@ router.post('/printer/addNewPrinterRepair', async ctx => {
     ctx.body = result;
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -127,10 +127,10 @@ router.post('/user/refreshAuthData', async ctx => {
   console.log(ctx.request.headers);
   try {
     ctx.body = await auth_utils.refreshAuthFromRefreshToken(ctx.request.header.refreshToken);
-  } catch (error) {
-    console.error('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -146,8 +146,8 @@ router.post('/user/registration', async ctx => {
     ctx.body = result;
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -157,8 +157,8 @@ router.post('/user/login', async ctx => {
     ctx.body = await UserApi.userLogin(ctx);
   } catch (err) {
     console.error('err', err);
-    ctx.status = 500;
-    ctx.body = 'Internal error 1111';
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -167,10 +167,10 @@ router.post('/user/forgot-password', async ctx => {
   try {
     my_logger(ctx.request.body);
     ctx.body = await UserApi.forgotPass(ctx.request.body.email);
-  } catch (error) {
-    console.error('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -178,20 +178,20 @@ router.post('/user/reset-password/:restore_pass_key', async ctx => {
   try {
     my_logger(ctx.params.restore_pass_key);
     ctx.body = await UserApi.resetPassword(ctx.params.restore_pass_key);
-  } catch (error) {
-    console.error('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
 router.post('/user/change-password', async ctx => {
   try {
     // надо делать
-  } catch (error) {
-    console.error('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -201,10 +201,10 @@ router.post('/user/get_all_user', async ctx => {
       list_limit: ctx.request.body.limit,
       list_skip: ctx.request.body.skip,
     });
-  } catch (error) {
-    console.error('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -213,10 +213,10 @@ router.post('/user/get_all_user', async ctx => {
 router.post('/test/add', async ctx => {
   try {
     ctx.body = await test_api.uploadDataToDataBase();
-  } catch (error) {
-    my_logger('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
+  } catch (err) {
+    my_logger('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
   }
 });
 
@@ -224,11 +224,10 @@ router.post('/public/test/get', async ctx => {
   try {
     //my_logger(ctx.params.page_number);
     ctx.body = await test_api.getDataWithPagination(ctx.request.body.page_number);
-  } catch (error) {
-    my_logger('err', error);
-    ctx.status = 500;
-    ctx.body = 'Internal error';
-  }
+  } catch (err) {
+    my_logger('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
 });
 
 module.exports = router;

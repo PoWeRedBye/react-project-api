@@ -17,35 +17,35 @@ exports.newCartridgeRefill = payload =>
 
     try {
       if (!cartridge_name) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'cartridge name is required!!!',
         });
-        return;
       } else if (!cartridge_code) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'cartridge code is required!!!',
         });
-        return;
       } else if (!executor) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'executor is required!!!',
         });
-        return;
       } else if (!work_type) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'work type is required!!!',
         });
-        return;
       } else if (!client) {
-        resolve({
+        reject({
           success: false,
+          code: 400,
           message: 'client is required!!!',
         });
-        return;
       } else if (!used_parts) {
         const newCartridgeRefill = new Cartridge({
           cartridge_name,
@@ -69,12 +69,11 @@ exports.newCartridgeRefill = payload =>
         // check if all parts exist in database
         if (used_parts.length !== selectedPartsFromDB.length) {
           // throw error
-          resolve({
+          reject({
             success: false,
+            code: 400, //TODO: set a normal http error code!!!
             message: 'items not found in db',
           });
-          return;
-          // return error;
         }
 
         // format parts list from database to simplify further usage
@@ -89,12 +88,11 @@ exports.newCartridgeRefill = payload =>
 
         if (failedPartsList.length) {
           // throw error
-          resolve({
+          reject({
             success: false,
+            code: 400,
             message: 'items amount is not correct ',
           });
-          return;
-          // return error;
         }
 
         // proceed with database updates and inserts
@@ -122,29 +120,6 @@ exports.newCartridgeRefill = payload =>
           });
           await parts.save();
         }
-
-        /*
-                        const tralala = await PartsList.updateMany({code: used_parts.map(_ => _.part_code)}, // incorrect filter queries
-                            used_parts.map(item => ({
-                                code: item.part_code,
-                                name: item.part_name,
-                                amount: selectedPartsFromDB[item.part_code].amount - item.part_quantity,
-                            }))
-                        );
-                        console.log(tralala);
-                        console.log('******'.repeat(20));
-                        const PartsListTrouble = await PartsList.updateMany(  // need to fix this update
-                            {code: {'$in': '{used_parts.map(_ => _.part_code)}'}}, // incorrect filter queries
-                            used_parts.map(item => ({
-                                code: item.part_code,
-                                name: item.part_name,
-                                amount: selectedPartsFromDB[item.part_code].amount - item.part_quantity,
-                            }))
-                        );
-
-                        console.log(PartsListTrouble);
-                        console.log('======'.repeat(50));
-            */
         resolve({
           result: true,
           message: newCartridgeRefill,
@@ -174,8 +149,9 @@ exports.getRefillByClient = client =>
   new Promise(async (resolve, reject) => {
     try {
       if (!client) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'client is required!!!',
         });
       } else {
@@ -195,8 +171,9 @@ exports.getAllRefillByCartridgeCode = cartridge_code =>
   new Promise(async (resolve, reject) => {
     try {
       if (!cartridge_code) {
-        resolve({
+        reject({
           result: false,
+          code: 400,
           message: 'cartridge code is required!!!',
         });
       } else {
