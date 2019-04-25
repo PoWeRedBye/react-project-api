@@ -1,0 +1,7 @@
+exports.HTTP_CODES = {
+  SUCCESS: 200,
+  //ERROR:
+  BAD_REQUEST: 400,
+  VALIDATION_ERROR: 422,
+
+};

@@ -5,6 +5,7 @@ const ContractPrinterApi = require('../modules/printers_api');
 const PrinterApi = require('../modules/printers_api');
 const UserApi = require('../modules/user_api');
 const auth_utils = require('../utils/authUtils.js');
+const doc_api = require('../modules/documents_api');
 
 const test_api = require('../utils/test_api');
 
@@ -228,6 +229,17 @@ router.post('/public/test/get', async ctx => {
     my_logger('err', err);
     ctx.status = err.code;
     ctx.body = err;
+  }
+});
+
+router.get('/pdf/test', async ctx => {
+  try {
+    ctx.body = await doc_api.generateFopInvoice();
+  } catch (err) {
+    my_logger('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
+  }
 });
 
 module.exports = router;

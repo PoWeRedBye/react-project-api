@@ -79,6 +79,19 @@ exports.sendNewUserPassMailOpt = payload => ({
     '</body>',
 });
 
+exports.sendWithAttachments = {
+  from: 'ferotekh.noreply@gmail.com', // sender address
+  to: 'maxim.oarovskiy@gmail.com', // list of receivers
+  subject: 'Attachment', // Subject line
+  text: 'Hello world attachment test', // plaintext body
+  html: '<b>Hello world attachment test HTML</b>', // html body
+  attachments: [
+    {
+      filename: 'fileName.pdf',
+      contentType: 'application/pdf'
+    }]
+};
+
 exports.mailSend = opt =>
   transporter.sendMail(opt, function(error, info) {
     if (error) {

@@ -173,7 +173,7 @@ exports.getAllRefillByCartridgeCode = cartridge_code =>
       if (!cartridge_code) {
         reject({
           result: false,
-          code: 400,
+          code: 422,
           message: 'cartridge code is required!!!',
         });
       } else {

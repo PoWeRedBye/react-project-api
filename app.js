@@ -103,6 +103,7 @@ const publicURLs = [
   '/user/refreshAuthData',
   '/test/add',
   '/public/test/get',
+  '/pdf/test',
 ];
 app.use(async (ctx, next) => {
   my_logger(ctx);
