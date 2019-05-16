@@ -209,6 +209,18 @@ router.post('/user/get_all_user', async ctx => {
   }
 });
 
+//TODO: {pdf}
+
+router.post('/template-invoice', async ctx => {
+  try{
+
+  } catch (err) {
+    console.error('err', err);
+    ctx.status = err.code;
+    ctx.body = err;
+  }
+});
+
 //TODO: paginations test
 
 router.post('/test/add', async ctx => {
@@ -237,7 +249,7 @@ router.get('/pdf/test', async ctx => {
     ctx.body = await doc_api.generateFopInvoice();
   } catch (err) {
     my_logger('err', err);
-    ctx.status = err.code;
+    ctx.status = 500;
     ctx.body = err;
   }
 });
