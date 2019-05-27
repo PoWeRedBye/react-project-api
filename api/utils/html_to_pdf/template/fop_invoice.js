@@ -8,12 +8,12 @@ module.exports = () => {
 
   const data = [
     {
-      name: 'name 1',
+      name: 'nameUKR => привіт',
       type: 1,
       amount: 10,
       price: 1,
     },
-    { name: 'name 2', type: 1, amount: 20, price: 2 },
+    { name: 'nameRUS => привет', type: 1, amount: 20, price: 2 },
     { name: 'name 3', type: 1, amount: 30, price: 3 },
     { name: 'name 4', type: 1, amount: 40, price: 4 },
     { name: 'name 5', type: 1, amount: 50, price: 5 },
@@ -60,24 +60,29 @@ module.exports = () => {
 
   return `
     <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="padding: 0;">
+
 <head>
     <meta charset="UTF-8">
     <title>new pdf</title>
     <style>
       html, body {
-        width: 210mm;
         min-height: 297mm;
         background: white;
+        margin: 0;
+      }
+      
+      body {
+        width: calc(210mm - 48mm);
         padding: 24mm;
       }
       .container-1{
-      display: -webkit-flex; 
+      display: -webkit-box; 
       flex-direction: row; 
-      margin-top: 25px
+      margin-top: 25px,
       }
       .container-2{
-      display: -webkit-flex; 
+      display: -webkit-box; 
       flex-direction: column; 
       }
       .container-3{
@@ -89,7 +94,7 @@ module.exports = () => {
     <div>УВАГА ! Рахунок має бути сплачений протягом 3 банківських днів</div>
         <div class="container-1">
           <div style="width: 135px">ПОСТАЧАЛЬНИК:</div>
-          <div style="display: -webkit-flex; flex-direction: column; margin-left: 15px">
+          <div style="margin-left: 15px">
             <div>MY FOP NAME</div>
             <div style="margin-top: 15px">ЄДРПО/ДРФО: 3253008234</div>
             <div>Р/рахунок: 26003052119396 в АТ КБ ПриватБанк.</div>
@@ -100,7 +105,7 @@ module.exports = () => {
         </div>
         <div class="container-1">
           <div style="width: 135px">ОДЕРЖУВАЧ:</div>
-          <div style="display: -webkit-flex; flex-direction: column; margin-left: 15px">SOME CLIENT NAME</div>
+          <div style="margin-left: 15px">SOME CLIENT NAME</div>
         </div>
         <div style="display: -webkit-flex; flex-direction: column; margin-top: 20px; margin-left: 150px">
           <div style="display: -webkit-flex; flex-direction: row">
@@ -124,24 +129,30 @@ module.exports = () => {
         </div>
         <div style="border: 1px solid black; border-top-width: 0 "
           <div style="text-align: center; border: 1px solid black">
-            Послуги з кмплексного ослуговування виробнитства копій або відбитків
+            Послуги з комплексного ослуговування виробнитства копій або відбитків
           </div>
-          ${data.map((item) => `
+          ${data.reduce(
+            (result, item, index) =>
+              result +
+              `
             <div style="display: -webkit-flex; flex-direction: row">
-              <div style="text-align: center; border: 1px solid black; flex: 1">${1}</div>
+              <div style="text-align: center; border: 1px solid black; flex: 1">${index + 1}</div>
               <div style="text-align: center; border: 1px solid black; flex: 1">${item.name}</div>
-              <div style="text-align: center; border: 1px solid black; flex: 1">${dictionary[item.type]}</div>
+              <div style="text-align: center; border: 1px solid black; flex: 1">${
+                dictionary[item.type]
+              }</div>
               <div style="text-align: center; border: 1px solid black; flex: 1">${item.amount}</div>
               <div style="text-align: center; border: 1px solid black; flex: 1">${item.price}</div>
-              <div style="border: 1px solid black; width: 125px; text-align: right; padding: 0 2px">
-                ${item.amount * item.price}
-              </div>
+              <div style="border: 1px solid black; width: 125px; text-align: right; padding: 0 2px">${item.amount *
+                item.price}</div>
             </div>
-          `)}
+          `,
+            '',
+          )}
           <div style="border: 1px solid black; height: 3px"/>
         </div>
-        <div style="display: -webkit-flex; justify-content: flex-end">
-          <div style="display: -webkit-flex; flex-direction: row">
+        <div style="display: -webkit-flex; flex-direction: column">
+          <div style="display: -webkit-flex; flex-direction: row; justify-content: flex-end">
             <div
               style=
                 "display: -webkit-flex;
@@ -160,9 +171,12 @@ module.exports = () => {
                   ${data.reduce((result, item) => result + item.amount * item.price, 0)}
                 </div>
                 <div style="border: 1px solid black; text-align: right; padding: 0 2px">
-                  ${global[pdv.withPDV]
-                    ? data.reduce((result, item) => result + item.amount * item.price, 0) * global[pdv.withPDV]
-                    : 'не передбачено'}
+                  ${
+                    global[pdv.withPDV]
+                      ? data.reduce((result, item) => result + item.amount * item.price, 0) *
+                        global[pdv.withPDV]
+                      : 'не передбачено'
+                  }
                 </div>
                 <div style="border: 1px solid black; text-align: right; padding: 0 2px">
                   ${data.reduce((result, item) => result + item.amount * item.price, 0) *
@@ -182,13 +196,15 @@ module.exports = () => {
           )} грн.</div>
           <div>
             ПДВ:${' '}
-            ${global[pdv.withPDV]
-              ? `${data.reduce((result, item) => result + item.amount * item.price, 0) *
-                global[pdv.withPDV]} грн.`
-              : 'не передбачено'}
+            ${
+              global[pdv.withPDV]
+                ? `${data.reduce((result, item) => result + item.amount * item.price, 0) *
+                    global[pdv.withPDV]} грн.`
+                : 'не передбачено'
+            }
           </div>
         </div>
-        <div style="display: -webkit-flex; justify-content: flex-end; padding: 0 70px">
+        <div style="display: -webkit-flex; justify-content: flex-end">
           Виписав(ла) _________________ ФОП М.І. Озаровський
         </div>
 </body>
