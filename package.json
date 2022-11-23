@@ -31,7 +31,7 @@
     "passport-local": "1.0.0",
     "rand-token": "0.4.0",
     "randomstring": "1.1.5",
-    "socket.io": "2.2.0",
+    "socket.io": "2.5.0",
     "socketio-jwt": "4.5.0",
     "soket.io": "1.0.0",
     "written-number": "^0.9.1"
